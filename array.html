@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Task</title>
+  </head>
+  <body>
+    <div id="elzero">object</div>
+
+    <script>
+      //Task 1 Use find() to get the first person named "Ali".
+      const people = [
+        { name: "Ali", age: 22 },
+        { name: "Lina", age: 30 },
+        { name: "Ali", age: 28 },
+        { name: "Ali", age: 33 },
+      ];
+
+      const result1 = people.find((p) => p.name === "Ali");
+      console.log(result1);
+      //Task 2 Using the same array: Use filter() to get ALL people older than 25.
+      const older = people.filter((p) => p.age > 25);
+      console.log(older);
+      //Task 3 Use map() to double every value.
+      const scores = [5, 10, 15];
+      const double = scores.map((p) => p * 2);
+      console.log(double);
+      //Task 4 Use reduce() to find the total of this array:
+      const cart = [20, 15, 30, 10];
+
+      const total = cart.reduce((sum, n) => sum + n);
+      console.log(total);
+      //Task 5 Use filter() + map() to get the names of users over age 2
+      const users = [
+        { name: "Omar", age: 24 },
+        { name: "Sara", age: 29 },
+        { name: "Hadi", age: 31 },
+      ];
+      const names = users.filter((n) => n.age > 25).map((n) => n.name);
+      console.log(names);
+      //Task 6 Use forEach() to print each number in this array
+      const nums = [2, 4, 6];
+      nums.forEach((n) => console.log(n));
+      //Task 7 Sort the following array numerically ascending
+      const values = [40, 5, 90, 12];
+      values.sort((a, b) => a - b);
+      console.log(values);
+      values.sort();
+      console.log(values);
+      //Task 8 Sort the following array numerically ascending
+      const cities = ["Amman", "Zarqa", "Irbid"];
+      cities.sort();
+      console.log(cities);
+      // Task 9 Sort the following array numerically ascending
+      const data = [3, 7, -2, 10];
+
+      const hasNegative = data.some((n) => n < 0);
+      console.log(hasNegative);
+
+      // Task 10 Using every(), check if all numbers are even:
+      const list = [2, 4, 6, 8];
+      const x = list.every((n) => n % 2 === 0);
+      console.log(x);
+const user = {
+    age:22,
+    name:"Mahmood"
+}
+
+    </script>
+  </body>
+</html>

@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نموذج التسجيل - Validate Form</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        
+        h1 span {
+            color: #667eea;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        label .required {
+            color: #e74c3c;
+            margin-left: 5px;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: #fafafa;
+        }
+        
+        input:focus, select:focus {
+            border-color: #667eea;
+            outline: none;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+        
+        input.error {
+            border-color: #e74c3c;
+            background: #fff5f5;
+        }
+        
+        input.success {
+            border-color: #2ecc71;
+            background: #f0fff4;
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            font-size: 13px;
+            margin-top: 5px;
+            display: none;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .error-message.show {
+            display: flex;
+        }
+        
+        .error-message::before {
+            content: "⚠️";
+            margin-right: 5px;
+        }
+        
+        .success-message {
+            color: #2ecc71;
+            font-size: 13px;
+            margin-top: 5px;
+            display: none;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .success-message.show {
+            display: flex;
+        }
+        
+        .success-message::before {
+            content: "✅";
+            margin-right: 5px;
+        }
+        
+        button[type="submit"] {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        
+        button[type="submit"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        button[type="submit"]:active {
+            transform: translateY(0);
+        }
+        
+        button[type="submit"]:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .form-footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #888;
+            font-size: 14px;
+        }
+        
+        /* تنسيق رسالة النجاح */
+        #formStatus {
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+            font-weight: 600;
+        }
+        
+        #formStatus.success {
+            display: block;
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+        
+        #formStatus.error {
+            display: block;
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+        
+        .password-strength {
+            height: 5px;
+            margin-top: 8px;
+            border-radius: 5px;
+            background: #e0e0e0;
+            transition: all 0.3s;
+            overflow: hidden;
+        }
+        
+        .password-strength .bar {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s;
+            border-radius: 5px;
+        }
+        
+        .password-strength .bar.weak {
+            width: 33%;
+            background: #e74c3c;
+        }
+        
+        .password-strength .bar.medium {
+            width: 66%;
+            background: #f39c12;
+        }
+        
+        .password-strength .bar.strong {
+            width: 100%;
+            background: #2ecc71;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 <span>تسجيل</span> جديد</h1>
+        
+        <form id="registerForm" novalidate>
+            <!-- الاسم الكامل -->
+            <div class="form-group">
+                <label>الاسم الكامل <span class="required">*</span></label>
+                <input type="text" id="fullName" placeholder="أدخل اسمك الكامل" required>
+                <div class="error-message" id="nameError">الاسم يجب أن يكون 3 أحرف على الأقل</div>
+                <div class="success-message" id="nameSuccess">✓ اسم صحيح</div>
+            </div>
+            
+            <!-- البريد الإلكتروني -->
+            <div class="form-group">
+                <label>البريد الإلكتروني <span class="required">*</span></label>
+                <input type="email" id="email" placeholder="example@email.com" required>
+                <div class="error-message" id="emailError">يرجى إدخال بريد إلكتروني صحيح</div>
+                <div class="success-message" id="emailSuccess">✓ بريد صحيح</div>
+            </div>
+            
+            <!-- كلمة المرور -->
+            <div class="form-group">
+                <label>كلمة المرور <span class="required">*</span></label>
+                <input type="password" id="password" placeholder="أدخل كلمة المرور" required>
+                <div class="password-strength">
+                    <div class="bar" id="passwordBar"></div>
+                </div>
+                <div class="error-message" id="passwordError">كلمة المرور يجب أن تكون 6 أحرف على الأقل</div>
+                <div class="success-message" id="passwordSuccess">✓ كلمة مرور قوية</div>
+            </div>
+            
+            <!-- تأكيد كلمة المرور -->
+            <div class="form-group">
+                <label>تأكيد كلمة المرور <span class="required">*</span></label>
+                <input type="password" id="confirmPassword" placeholder="أعد كتابة كلمة المرور" required>
+                <div class="error-message" id="confirmError">كلمة المرور غير متطابقة</div>
+                <div class="success-message" id="confirmSuccess">✓ متطابقة</div>
+            </div>
+            
+            <!-- العمر -->
+            <div class="form-group">
+                <label>العمر <span class="required">*</span></label>
+                <input type="number" id="age" placeholder="أدخل عمرك" min="18" max="100" required>
+                <div class="error-message" id="ageError">يجب أن يكون العمر بين 18 و 100 سنة</div>
+                <div class="success-message" id="ageSuccess">✓ عمر صحيح</div>
+            </div>
+            
+            <!-- الدولة -->
+            <div class="form-group">
+                <label>الدولة <span class="required">*</span></label>
+                <select id="country" required>
+                    <option value="">-- اختر دولة --</option>
+                    <option value="sa">السعودية</option>
+                    <option value="eg">مصر</option>
+                    <option value="ae">الإمارات</option>
+                    <option value="kw">الكويت</option>
+                    <option value="qa">قطر</option>
+                    <option value="om">عمان</option>
+                    <option value="jo">الأردن</option>
+                    <option value="other">أخرى</option>
+                </select>
+                <div class="error-message" id="countryError">يرجى اختيار دولة</div>
+                <div class="success-message" id="countrySuccess">✓ تم الاختيار</div>
+            </div>
+            
+            <!-- الموافقة على الشروط -->
+            <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                <input type="checkbox" id="terms" style="width: auto; width: 20px; height: 20px; cursor: pointer;">
+                <label for="terms" style="margin: 0; cursor: pointer; font-weight: normal;">
+                    أوافق على <a href="#" style="color: #667eea; text-decoration: none;">الشروط والأحكام</a>
+                    <span class="required">*</span>
+                </label>
+            </div>
+            <div class="error-message" id="termsError" style="margin-top: 0;">يجب الموافقة على الشروط والأحكام</div>
+            
+            <!-- زر الإرسال -->
+            <button type="submit" id="submitBtn">تسجيل الآن</button>
+            
+            <!-- حالة النموذج -->
+            <div id="formStatus"></div>
+            
+            <div class="form-footer">
+                جميع الحقول المطلوبة <span style="color: #e74c3c;">*</span>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // =============================================
+        // 1️⃣ الحصول على جميع العناصر
+        // =============================================
+        const form = document.getElementById('registerForm');
+        const fullName = document.getElementById('fullName');
+        const email = document.getElementById('email');
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirmPassword');
+        const age = document.getElementById('age');
+        const country = document.getElementById('country');
+        const terms = document.getElementById('terms');
+        const submitBtn = document.getElementById('submitBtn');
+        const formStatus = document.getElementById('formStatus');
+
+        // عناصر عرض الأخطاء
+        const nameError = document.getElementById('nameError');
+        const nameSuccess = document.getElementById('nameSuccess');
+        const emailError = document.getElementById('emailError');
+        const emailSuccess = document.getElementById('emailSuccess');
+        const passwordError = document.getElementById('passwordError');
+        const passwordSuccess = document.getElementById('passwordSuccess');
+        const confirmError = document.getElementById('confirmError');
+        const confirmSuccess = document.getElementById('confirmSuccess');
+        const ageError = document.getElementById('ageError');
+        const ageSuccess = document.getElementById('ageSuccess');
+        const countryError = document.getElementById('countryError');
+        const countrySuccess = document.getElementById('countrySuccess');
+        const termsError = document.getElementById('termsError');
+        const passwordBar = document.getElementById('passwordBar');
+
+        // =============================================
+        // 2️⃣ دوال التحقق (Validation Functions)
+        // =============================================
+
+        // التحقق من الاسم
+        function validateName() {
+            const value = fullName.value.trim();
+            if (value.length < 3) {
+                fullName.classList.remove('success');
+                fullName.classList.add('error');
+                nameError.classList.add('show');
+                nameSuccess.classList.remove('show');
+                return false;
+            } else {
+                fullName.classList.remove('error');
+                fullName.classList.add('success');
+                nameError.classList.remove('show');
+                nameSuccess.classList.add('show');
+                return true;
+            }
+        }
+
+        // التحقق من البريد الإلكتروني
+        function validateEmail() {
+            const value = email.value.trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(value)) {
+                email.classList.remove('success');
+                email.classList.add('error');
+                emailError.classList.add('show');
+                emailSuccess.classList.remove('show');
+                return false;
+            } else {
+                email.classList.remove('error');
+                email.classList.add('success');
+                emailError.classList.remove('show');
+                emailSuccess.classList.add('show');
+                return true;
+            }
+        }
+
+        // التحقق من كلمة المرور
+        function validatePassword() {
+            const value = password.value;
+            const strength = getPasswordStrength(value);
+            
+            if (value.length < 6) {
+                password.classList.remove('success');
+                password.classList.add('error');
+                passwordError.classList.add('show');
+                passwordSuccess.classList.remove('show');
+                updatePasswordBar('weak');
+                return false;
+            } else {
+                password.classList.remove('error');
+                password.classList.add('success');
+                passwordError.classList.remove('show');
+                passwordSuccess.classList.add('show');
+                updatePasswordBar(strength);
+                return true;
+            }
+        }
+
+        // تقييم قوة كلمة المرور
+        function getPasswordStrength(password) {
+            let strength = 0;
+            if (password.length >= 8) strength++;
+            if (password.match(/[a-z]/)) strength++;
+            if (password.match(/[A-Z]/)) strength++;
+            if (password.match(/[0-9]/)) strength++;
+            if (password.match(/[^a-zA-Z0-9]/)) strength++;
+            
+            if (strength <= 2) return 'weak';
+            if (strength <= 4) return 'medium';
+            return 'strong';
+        }
+
+        // تحديث شريط قوة كلمة المرور
+        function updatePasswordBar(strength) {
+            passwordBar.className = 'bar';
+            if (strength === 'weak') {
+                passwordBar.classList.add('weak');
+            } else if (strength === 'medium') {
+                passwordBar.classList.add('medium');
+            } else if (strength === 'strong') {
+                passwordBar.classList.add('strong');
+            }
+        }
+
+        // التحقق من تطابق كلمة المرور
+        function validateConfirmPassword() {
+            if (confirmPassword.value !== password.value) {
+                confirmPassword.classList.remove('success');
+                confirmPassword.classList.add('error');
+                confirmError.classList.add('show');
+                confirmSuccess.classList.remove('show');
+                return false;
+            } else if (confirmPassword.value === '') {
+                confirmPassword.classList.remove('success');
+                confirmPassword.classList.remove('error');
+                confirmError.classList.remove('show');
+                confirmSuccess.classList.remove('show');
+                return false;
+            } else {
+                confirmPassword.classList.remove('error');
+                confirmPassword.classList.add('success');
+                confirmError.classList.remove('show');
+                confirmSuccess.classList.add('show');
+                return true;
+            }
+        }
+
+        // التحقق من العمر
+        function validateAge() {
+            const value = parseInt(age.value);
+            if (isNaN(value) || value < 18 || value > 100) {
+                age.classList.remove('success');
+                age.classList.add('error');
+                ageError.classList.add('show');
+                ageSuccess.classList.remove('show');
+                return false;
+            } else {
+                age.classList.remove('error');
+                age.classList.add('success');
+                ageError.classList.remove('show');
+                ageSuccess.classList.add('show');
+                return true;
+            }
+        }
+
+        // التحقق من الدولة
+        function validateCountry() {
+            if (country.value === '') {
+                country.classList.remove('success');
+                country.classList.add('error');
+                countryError.classList.add('show');
+                countrySuccess.classList.remove('show');
+                return false;
+            } else {
+                country.classList.remove('error');
+                country.classList.add('success');
+                countryError.classList.remove('show');
+                countrySuccess.classList.add('show');
+                return true;
+            }
+        }
+
+        // التحقق من الموافقة على الشروط
+        function validateTerms() {
+            if (!terms.checked) {
+                termsError.classList.add('show');
+                return false;
+            } else {
+                termsError.classList.remove('show');
+                return true;
+            }
+        }
+
+        // =============================================
+        // 3️⃣ التحقق من النموذج بالكامل
+        // =============================================
+        function validateForm() {
+            const isNameValid = validateName();
+            const isEmailValid = validateEmail();
+            const isPasswordValid = validatePassword();
+            const isConfirmValid = validateConfirmPassword();
+            const isAgeValid = validateAge();
+            const isCountryValid = validateCountry();
+            const isTermsValid = validateTerms();
+
+            const isValid = isNameValid && isEmailValid && isPasswordValid && 
+                           isConfirmValid && isAgeValid && isCountryValid && isTermsValid;
+
+            // تحديث حالة الزر
+            submitBtn.disabled = !isValid;
+            
+            return isValid;
+        }
+
+        // =============================================
+        // 4️⃣ ربط الأحداث (Event Listeners)
+        // =============================================
+
+        // التحقق عند كتابة النص (oninput)
+        fullName.addEventListener('input', () => {
+            validateName();
+            validateForm();
+        });
+
+        email.addEventListener('input', () => {
+            validateEmail();
+            validateForm();
+        });
+
+        password.addEventListener('input', () => {
+            validatePassword();
+            validateConfirmPassword();
+            validateForm();
+        });
+
+        confirmPassword.addEventListener('input', () => {
+            validateConfirmPassword();
+            validateForm();
+        });
+
+        age.addEventListener('input', () => {
+            validateAge();
+            validateForm();
+        });
+
+        country.addEventListener('change', () => {
+            validateCountry();
+            validateForm();
+        });
+
+        terms.addEventListener('change', () => {
+            validateTerms();
+            validateForm();
+        });
+
+        // =============================================
+        // 5️⃣ 🔥 التعامل مع حدث submit ومنع السلوك الافتراضي
+        // =============================================
+        form.addEventListener('submit', function(event) {
+            // 🔥 منع السلوك الافتراضي (Prevent Default)
+            // هذا يمنع إرسال النموذج وتحديث الصفحة
+            event.preventDefault();
+            
+            console.log('🚀 تم منع السلوك الافتراضي للنموذج!');
+            
+            // التحقق النهائي من النموذج
+            if (!validateForm()) {
+                formStatus.className = 'error';
+                formStatus.textContent = '❌ يرجى تصحيح جميع الأخطاء قبل الإرسال';
+                formStatus.style.display = 'block';
+                
+                // تمرير إلى أول حقل به خطأ
+                const firstError = document.querySelector('.error');
+                if (firstError) {
+                    firstError.focus();
+                }
+                return;
+            }
+
+            // ✅ النموذج صحيح - هنا نرسل البيانات
+            const formData = {
+                fullName: fullName.value.trim(),
+                email: email.value.trim(),
+                password: password.value,
+                age: age.value,
+                country: country.options[country.selectedIndex].text,
+                termsAccepted: terms.checked,
+                timestamp: new Date().toLocaleString()
+            };
+
+            // عرض رسالة نجاح
+            formStatus.className = 'success';
+            formStatus.innerHTML = `
+                ✅ <strong>تم التسجيل بنجاح!</strong><br>
+                مرحباً ${formData.fullName}، تم تسجيل بياناتك.
+                <br><small style="font-weight: normal;">سيتم توجيهك قريباً...</small>
+            `;
+            formStatus.style.display = 'block';
+
+            // تعطيل النموذج بعد الإرسال
+            form.querySelectorAll('input, select, button').forEach(el => {
+                el.disabled = true;
+            });
+
+            // طباعة البيانات في Console
+            console.log('📝 بيانات التسجيل:');
+            console.table(formData);
+
+            // محاكاة إرسال إلى الخادم
+            setTimeout(() => {
+                alert('🎉 تم إرسال البيانات بنجاح!\n' + 
+                      `الاسم: ${formData.fullName}\n` +
+                      `البريد: ${formData.email}\n` +
+                      `الدولة: ${formData.country}`);
+                
+                // إعادة تعيين النموذج بعد 3 ثواني (اختياري)
+                setTimeout(() => {
+                    form.reset();
+                    form.querySelectorAll('input, select').forEach(el => {
+                        el.disabled = false;
+                    });
+                    submitBtn.disabled = false;
+                    formStatus.style.display = 'none';
+                    document.querySelectorAll('.success, .error').forEach(el => {
+                        el.classList.remove('success', 'error');
+                    });
+                    document.querySelectorAll('.error-message, .success-message').forEach(el => {
+                        el.classList.remove('show');
+                    });
+                    passwordBar.className = 'bar';
+                    console.log('🔄 تم إعادة تعيين النموذج');
+                }, 3000);
+            }, 1500);
+        });
+
+        // =============================================
+        // 6️⃣ منع السلوك الافتراضي للروابط (مثال إضافي)
+        // =============================================
+        document.querySelector('a[href="#"]').addEventListener('click', function(event) {
+            // منع الانتقال إلى الرابط
+            event.preventDefault();
+            alert('🔗 تم منع الانتقال إلى الرابط!');
+            console.log('🚫 تم منع السلوك الافتراضي للرابط');
+        });
+
+        // =============================================
+        // 7️⃣ منع قائمة السياق الافتراضية (زر الفأرة الأيمن)
+        // =============================================
+        document.addEventListener('contextmenu', function(event) {
+            // منع ظهور القائمة الافتراضية في كل الصفحة (اختياري)
+            // event.preventDefault();
+            // console.log('🚫 تم منع قائمة السياق الافتراضية');
+        });
+
+        // =============================================
+        // 8️⃣ التهيئة الأولية
+        // =============================================
+        console.log('✅ النموذج جاهز مع التحقق الكامل!');
+        console.log('💡 جرب إدخال بيانات غير صحيحة لترى الأخطاء');
+        validateForm();
+
+        // رسالة توضيحية عن preventDefault
+        console.log('📖 شرح preventDefault():');
+        console.log('1️⃣ يتم استدعاؤها في بداية حدث submit');
+        console.log('2️⃣ تمنع المتصفح من إرسال النموذج وإعادة تحميل الصفحة');
+        console.log('3️⃣ تسمح لنا بالتحكم الكامل في عملية الإرسال');
+        console.log('4️⃣ نستخدمها مع validateForm() للتحقق من البيانات');
+    </script>
+</body>
+</html>

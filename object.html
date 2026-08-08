@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Deal With Children</title>
+</head>
+<body>
+    <div id="container">
+        <h1>قائمة المنتجات</h1>
+        <ul id="product-list">
+            <li class="product">منتج 1</li>
+            <li class="product">منتج 2</li>
+            <li class="product">منتج 3</li>
+            <li class="product">منتج 4</li>
+        </ul>
+        <button id="add-btn">إضافة منتج</button>
+    </div>
+
+    <script>
+        // الحصول على العناصر
+        let container = document.getElementById("container");
+        let productList = document.getElementById("product-list");
+        
+        // 1. children - الحصول على أبناء container
+        console.log("أبناء container:", container.children);
+        // النتيجة: HTMLCollection(3) [h1, ul#product-list, button#add-btn]
+        
+        // 2. childNodes - الحصول على جميع عقد container
+        console.log("جميع عقد container:", container.childNodes);
+        // النتيجة: NodeList مع عناصر ونصوص ومسافات
+        
+        // 3. firstElementChild - أول عنصر في container
+        console.log("أول عنصر في container:", container.firstElementChild);
+        // النتيجة: <h1>قائمة المنتجات</h1>
+        
+        // 4. lastElementChild - آخر عنصر في container
+        console.log("آخر عنصر في container:", container.lastElementChild);
+        // النتيجة: <button id="add-btn">إضافة منتج</button>
+        
+        // 5. التعامل مع أبناء القائمة
+        let items = productList.children;
+        console.log(`عدد المنتجات: ${items.length}`); // 4
+        
+        // 6. التكرار على المنتجات
+        for (let i = 0; i < items.length; i++) {
+            console.log(`المنتج ${i + 1}: ${items[i].textContent}`);
+        }
+        
+        // 7. أول منتج وآخر منتج
+        console.log("أول منتج:", productList.firstElementChild.textContent);
+        console.log("آخر منتج:", productList.lastElementChild.textContent);
+        
+        // 8. إضافة منتج جديد
+        function addProduct() {
+            let newItem = document.createElement("li");
+            newItem.className = "product";
+            newItem.textContent = `منتج ${items.length + 1}`;
+            productList.appendChild(newItem);
+            
+            console.log(`تمت الإضافة! عدد المنتجات الآن: ${productList.children.length}`);
+        }
+        
+        // ربط الزر بوظيفة الإضافة
+        document.getElementById("add-btn").onclick = addProduct;
+    </script>
+</body>
+</html>
